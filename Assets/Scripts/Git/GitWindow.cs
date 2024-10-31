@@ -3,8 +3,8 @@ using UnityEngine;
 using System.Diagnostics;
 
 /// <summary>
-/// UnityƒGƒfƒBƒ^[ã‚ÅGit‘€ì‚ğÀs‚·‚éƒJƒXƒ^ƒ€ƒGƒfƒBƒ^ƒEƒBƒ“ƒhƒE
-/// Œ»óƒ†[ƒU[‚Í‚±‚ÌƒEƒBƒ“ƒhƒE‚ğ’Ê‚¶‚ÄCGit‚Ìadd, commit, push, pullƒRƒ}ƒ“ƒh‚ğÀs‰Â”\
+/// Unityã‚¨ãƒ‡ã‚£ã‚¿ãƒ¼ä¸Šã§Gitæ“ä½œã‚’å®Ÿè¡Œã™ã‚‹ã‚«ã‚¹ã‚¿ãƒ ã‚¨ãƒ‡ã‚£ã‚¿ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦
+/// ç¾çŠ¶ãƒ¦ãƒ¼ã‚¶ãƒ¼ã¯ã“ã®ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã‚’é€šã˜ã¦ï¼ŒGitã®add, commit, push, pullã‚³ãƒãƒ³ãƒ‰ã‚’å®Ÿè¡Œå¯èƒ½
 /// </summary>
 public class GitWindow : EditorWindow
 {
@@ -16,7 +16,7 @@ public class GitWindow : EditorWindow
 
     private void OnGUI()
     {
-        GUILayout.Label("Git‘€ì", EditorStyles.boldLabel);
+        GUILayout.Label("Gitæ“ä½œ", EditorStyles.boldLabel);
 
         if (GUILayout.Button("Status"))
         {
@@ -30,7 +30,7 @@ public class GitWindow : EditorWindow
 
         if (GUILayout.Button("Commit"))
         {
-            string message = "ƒRƒ~ƒbƒgƒƒbƒZ[ƒW";
+            string message = "ã‚³ãƒŸãƒƒãƒˆãƒ¡ãƒƒã‚»ãƒ¼ã‚¸";
             ExecuteGitCommand($"commit -m \"{message}\"");
         }
 
@@ -46,9 +46,9 @@ public class GitWindow : EditorWindow
     }
 
     /// <summary>
-    /// w’è‚³‚ê‚½GitƒRƒ}ƒ“ƒh‚ğÀs‚µCo—ÍŒ‹‰Ê‚Ü‚½‚ÍƒGƒ‰[ƒƒbƒZ[ƒW‚ğUnity‚ÌƒRƒ“ƒ\[ƒ‹‚É•\¦
+    /// æŒ‡å®šã•ã‚ŒãŸGitã‚³ãƒãƒ³ãƒ‰ã‚’å®Ÿè¡Œã—ï¼Œå‡ºåŠ›çµæœã¾ãŸã¯ã‚¨ãƒ©ãƒ¼ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚’Unityã®ã‚³ãƒ³ã‚½ãƒ¼ãƒ«ã«è¡¨ç¤º
     /// </summary>
-    /// <param name="command">Às‚·‚éGitƒRƒ}ƒ“ƒh</param>
+    /// <param name="command">å®Ÿè¡Œã™ã‚‹Gitã‚³ãƒãƒ³ãƒ‰</param>
     private void ExecuteGitCommand(string command)
     {
         ProcessStartInfo psi = new ProcessStartInfo("git", command)
