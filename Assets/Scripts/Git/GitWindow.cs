@@ -9,6 +9,8 @@ using System.Text.RegularExpressions;
 /// </summary>
 public class GitWindow : EditorWindow
 {
+    private string commitMessage = "コミットメッセージ";
+
     [MenuItem("Tools/Git")]
     public static void ShowWindow()
     {
@@ -29,10 +31,11 @@ public class GitWindow : EditorWindow
             ExecuteGitCommand("add .");
         }
 
+        commitMessage = EditorGUILayout.TextField("Commit Message", commitMessage);
         if (GUILayout.Button("Commit"))
         {
-            string message = "コミットメッセージ";
-            ExecuteGitCommand($"commit -m \"{message}\"");
+            ExecuteGitCommand($"commit -m \"{commitMessage}\"");
+            commitMessage = "コミットメッセージ";
         }
 
         if (GUILayout.Button("Push"))
