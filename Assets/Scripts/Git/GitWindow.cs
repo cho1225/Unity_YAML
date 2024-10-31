@@ -1,6 +1,7 @@
 using UnityEditor;
 using UnityEngine;
 using System.Diagnostics;
+using System.Text.RegularExpressions;
 
 /// <summary>
 /// Unityエディター上でGit操作を実行するカスタムエディタウィンドウ
@@ -64,10 +65,31 @@ public class GitWindow : EditorWindow
         string error = process.StandardError.ReadToEnd();
         process.WaitForExit();
 
-        if (!string.IsNullOrEmpty(output))
+        bool hasOutput = !string.IsNullOrEmpty(output);
+        bool hasWarning = !string.IsNullOrEmpty(error) && IsWarning(error);
+        bool hasError = !string.IsNullOrEmpty(error);
+
+        if (hasOutput)
             UnityEngine.Debug.Log(output);
 
-        if (!string.IsNullOrEmpty(error))
+        if (hasWarning)
+        {
+            UnityEngine.Debug.LogWarning(error);
+        }
+        else if (hasError)
+        {
             UnityEngine.Debug.LogError(error);
+        }
+    }
+
+    /// <summary>
+    /// エラーメッセージが警告かどうかを判断する。
+    /// </summary>
+    /// <param name="message">エラーメッセージ</param>
+    /// <returns>Warningであればtrue、そうでなければfalse</returns>
+    private bool IsWarning(string message)
+    {
+        // "warning" という単語が含まれている場合はWarningとする
+        return Regex.IsMatch(message, @"\bwarning\b", RegexOptions.IgnoreCase);
     }
 }
