@@ -53,12 +53,12 @@ public class GitWindow : EditorWindow
 
         if (GUILayout.Button("Push", GUILayout.Width(200)))
         {
-            ExecuteGitCommand("push");
+            ExecuteGitCommand($"push origin {branches[currentBranchIndex]}");
         }
 
         if (GUILayout.Button("Pull", GUILayout.Width(200)))
         {
-            ExecuteGitCommand("pull");
+            ExecuteGitCommand($"pull origin {branches[currentBranchIndex]}");
         }
 
         if (GUILayout.Button("Status", GUILayout.Width(200)))
