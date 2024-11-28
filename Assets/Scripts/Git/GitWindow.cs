@@ -84,8 +84,11 @@ public class GitWindow : EditorWindow
             ExecuteGitCommand($"switch {branches[currentBranchIndex]}");
         }
 
-        branchIndex1 = EditorGUILayout.Popup(branchIndex1, branches, GUILayout.Width(200));
-        branchIndex2 = EditorGUILayout.Popup(branchIndex2, branches, GUILayout.Width(200));
+        EditorGUILayout.BeginHorizontal();
+        branchIndex1 = EditorGUILayout.Popup(branchIndex1, branches, GUILayout.Width(150));
+        GUILayout.Label("←", new GUIStyle(EditorStyles.boldLabel) { alignment = TextAnchor.MiddleCenter }, GUILayout.Width(20));
+        branchIndex2 = EditorGUILayout.Popup(branchIndex2, branches, GUILayout.Width(150));
+        EditorGUILayout.EndHorizontal();
         if (GUILayout.Button("ブランチをマージ", GUILayout.Width(200)))
         {
             //MergeBranches(branches[branchAIndex], branches[branchBIndex]);
@@ -105,11 +108,6 @@ public class GitWindow : EditorWindow
     private void OnDisable()
     {
         StopFileWatcher(); // ファイル監視を停止
-    }
-
-    private void CreateBranch()
-    {
-
     }
 
     private void FreshBranches()
@@ -278,6 +276,6 @@ public class GitWindow : EditorWindow
     /// <returns>成功メッセージならtrue、そうでなければfalse</returns>
     private bool IsSuccessMessage(string message)
     {
-        return message.StartsWith("To https://") || Regex.IsMatch(message, @"^\s+\d+\.\.\d+");
+        return message.StartsWith("To https://") || message.StartsWith("Switched") || Regex.IsMatch(message, @"^\s+\d+\.\.\d+");
     }
 }
