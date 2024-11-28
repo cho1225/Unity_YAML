@@ -86,7 +86,7 @@ public class GitWindow : EditorWindow
 
         branchIndex1 = EditorGUILayout.Popup(branchIndex1, branches, GUILayout.Width(200));
         branchIndex2 = EditorGUILayout.Popup(branchIndex2, branches, GUILayout.Width(200));
-        if (GUILayout.Button("ブランチをマージ", GUILayout.Width(200)))
+        if (GUILayout.Button("ブランチをマージ"))
         {
             //MergeBranches(branches[branchAIndex], branches[branchBIndex]);
         }
