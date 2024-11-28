@@ -13,8 +13,16 @@ using System.Text.RegularExpressions;
 /// </summary>
 public class GitWindow : EditorWindow
 {
+    private Vector2 scrollPosition;
+
     private string commitMessage = "コミットメッセージ";
-    private HashSet<string> fetchedFiles = new HashSet<string>();
+    private string newBranchName = "NewBranch";
+    private string[] branches = new string[] { "main" };
+    private int branchIndex1 = 0;
+    private int branchIndex2 = 0;
+    private int currentBranchIndex = 0;
+
+    private readonly HashSet<string> fetchedFiles = new();
     private FileSystemWatcher fileWatcher;
 
     [MenuItem("Tools/Git")]
@@ -25,44 +33,72 @@ public class GitWindow : EditorWindow
 
     private void OnGUI()
     {
+        scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition);
+
+        EditorGUILayout.BeginVertical("box");
+
         GUILayout.Label("Git操作", EditorStyles.boldLabel);
 
-        if (GUILayout.Button("Add"))
+        if (GUILayout.Button("Add", GUILayout.Width(200)))
         {
             ExecuteGitCommand("add .");
         }
 
-        commitMessage = EditorGUILayout.TextField("Commit Message", commitMessage);
-        if (GUILayout.Button("Commit"))
+        commitMessage = EditorGUILayout.TextField(commitMessage, GUILayout.Width(200), GUILayout.Height(60));
+        if (GUILayout.Button("Commit", GUILayout.Width(200)))
         {
             ExecuteGitCommand($"commit -m \"{commitMessage}\"");
             commitMessage = "コミットメッセージ";
         }
 
-        if (GUILayout.Button("Push"))
+        if (GUILayout.Button("Push", GUILayout.Width(200)))
         {
             ExecuteGitCommand("push");
         }
 
-        if (GUILayout.Button("Pull"))
+        if (GUILayout.Button("Pull", GUILayout.Width(200)))
         {
             ExecuteGitCommand("pull");
         }
 
-        GUILayout.Space(10);
-        if (GUILayout.Button("Status"))
+        if (GUILayout.Button("Status", GUILayout.Width(200)))
         {
             ExecuteGitCommand("status");
         }
 
-        if (GUILayout.Button("Log"))
+        if (GUILayout.Button("Log", GUILayout.Width(200)))
         {
             ExecuteGitCommand("log --oneline -n 10"); // 最新10件のログを簡易表示
         }
+
+        newBranchName = EditorGUILayout.TextField(newBranchName, GUILayout.Width(200));
+        if (GUILayout.Button("ブランチを作成", GUILayout.Width(200)))
+        {
+            ExecuteGitCommand($"branch {newBranchName}");
+            FreshBranches();
+        }
+
+        currentBranchIndex = EditorGUILayout.Popup(currentBranchIndex, branches, GUILayout.Width(200));
+        if (GUILayout.Button("ブランチを切り替え", GUILayout.Width(200)))
+        {
+            ExecuteGitCommand($"switch {branches[currentBranchIndex]}");
+        }
+
+        branchIndex1 = EditorGUILayout.Popup(branchIndex1, branches, GUILayout.Width(200));
+        branchIndex2 = EditorGUILayout.Popup(branchIndex2, branches, GUILayout.Width(200));
+        if (GUILayout.Button("ブランチをマージ", GUILayout.Width(200)))
+        {
+            //MergeBranches(branches[branchAIndex], branches[branchBIndex]);
+        }
+
+        EditorGUILayout.EndVertical();
+
+        EditorGUILayout.EndScrollView();
     }
 
     private void OnEnable()
     {
+        FreshBranches();
         StartFileWatcher(); // ファイル監視を開始
     }
 
@@ -71,9 +107,32 @@ public class GitWindow : EditorWindow
         StopFileWatcher(); // ファイル監視を停止
     }
 
+    private void CreateBranch()
+    {
+
+    }
+
+    private void FreshBranches()
+    {
+        ProcessStartInfo startInfo = new ProcessStartInfo
+        {
+            FileName = "git",
+            Arguments = "branch --format=\"%(refname:short)\"",
+            RedirectStandardOutput = true,
+            UseShellExecute = false,
+            CreateNoWindow = true
+        };
+
+        using (Process process = Process.Start(startInfo))
+        {
+            string output = process.StandardOutput.ReadToEnd();
+            branches = output.Split(new[] { '\n' }, System.StringSplitOptions.RemoveEmptyEntries);
+        }
+    }
+
     private void StartFileWatcher()
     {
-        string path = Application.dataPath; // 監視対象のパス
+        string path = Path.GetFullPath(Application.dataPath + "/.."); // 監視対象のパス
         fileWatcher = new FileSystemWatcher(path)
         {
             NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.DirectoryName,
@@ -113,7 +172,7 @@ public class GitWindow : EditorWindow
         {
             string[] changedFiles = output.Split('\n')
                 .Where(line => !string.IsNullOrEmpty(line))
-                .Select(line => line.Substring(3).Trim())
+                .Select(line => line[3..].Trim())
                 .ToArray();
 
             // 新しい変更ファイルをチェック
@@ -121,20 +180,42 @@ public class GitWindow : EditorWindow
             {
                 if (!fetchedFiles.Contains(file))
                 {
-                    UnityEngine.Debug.Log(file); // 新しい変更ファイルをログに表示
-                    fetchedFiles.Add(file); // 取得したファイルとして追加
+                    UnityEngine.Debug.Log(file);
+                    fetchedFiles.Add(file);
                 }
             }
         }
-        else
-        {
-            UnityEngine.Debug.Log("No changed files.");
-        }
     }
 
-    private string GetChangedFiles(string command)
+    private string GetChangedFiles(string arguments)
     {
-        return "";
+        ProcessStartInfo startInfo = new()
+        {
+            FileName = "git",
+            Arguments = arguments,
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            UseShellExecute = false,
+            CreateNoWindow = true,
+            StandardOutputEncoding = System.Text.Encoding.UTF8
+        };
+
+        using Process process = new();
+        process.StartInfo = startInfo;
+        process.Start();
+
+
+        string output = process.StandardOutput.ReadToEnd();
+        string error = process.StandardError.ReadToEnd();
+
+        process.WaitForExit();
+
+        if (!string.IsNullOrEmpty(error))
+        {
+            UnityEngine.Debug.LogError(error);
+        }
+
+        return output;
     }
 
     /// <summary>
@@ -143,7 +224,7 @@ public class GitWindow : EditorWindow
     /// <param name="command">実行するGitコマンド</param>
     private void ExecuteGitCommand(string command)
     {
-        ProcessStartInfo psi = new ProcessStartInfo("git", command)
+        ProcessStartInfo psi = new("git", command)
         {
             RedirectStandardOutput = true,
             RedirectStandardError = true,
