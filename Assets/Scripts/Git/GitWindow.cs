@@ -21,6 +21,7 @@ public class GitWindow : EditorWindow
     private int branchIndex1 = 0;
     private int branchIndex2 = 0;
     private int currentBranchIndex = 0;
+    private string currentBranchName = "main";
 
     private readonly HashSet<string> fetchedFiles = new();
     private FileSystemWatcher fileWatcher;
@@ -37,7 +38,10 @@ public class GitWindow : EditorWindow
 
         EditorGUILayout.BeginVertical("box");
 
+        EditorGUILayout.BeginHorizontal();
         GUILayout.Label("Git操作", EditorStyles.boldLabel);
+        GUILayout.Label(currentBranchName, EditorStyles.boldLabel);
+        EditorGUILayout.EndHorizontal();
 
         if (GUILayout.Button("Add", GUILayout.Width(200)))
         {
@@ -91,7 +95,7 @@ public class GitWindow : EditorWindow
         EditorGUILayout.EndHorizontal();
         if (GUILayout.Button("ブランチをマージ", GUILayout.Width(200)))
         {
-            //MergeBranches(branches[branchAIndex], branches[branchBIndex]);
+            MergeBranches(branches[branchIndex1], branches[branchIndex2]);
         }
 
         EditorGUILayout.EndVertical();
@@ -101,6 +105,7 @@ public class GitWindow : EditorWindow
 
     private void OnEnable()
     {
+
         FreshBranches();
         StartFileWatcher(); // ファイル監視を開始
     }
@@ -126,6 +131,11 @@ public class GitWindow : EditorWindow
             string output = process.StandardOutput.ReadToEnd();
             branches = output.Split(new[] { '\n' }, System.StringSplitOptions.RemoveEmptyEntries);
         }
+    }
+
+    private void MergeBranches(string _branch1, string _branch2)
+    {
+        UnityEngine.Debug.Log(_branch1 + _branch2) ;
     }
 
     private void StartFileWatcher()
@@ -242,8 +252,10 @@ public class GitWindow : EditorWindow
         bool hasWarning = hasError && IsWarning(error);
 
         if (hasOutput)
-            UnityEngine.Debug.Log(output);
+            UnityEngine.Debug.Log("Output : " + output);
 
+        // error,fatal,rejected,denied
+        // conflict
         if (hasSuccessMessage)
         {
             UnityEngine.Debug.Log(error);
