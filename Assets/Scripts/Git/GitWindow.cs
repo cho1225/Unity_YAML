@@ -1,3 +1,4 @@
+using System;
 using UnityEditor;
 using UnityEngine;
 using System.Collections.Generic;
@@ -6,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using Debug = UnityEngine.Debug;
 
 /// <summary>
 /// Unityエディター上でGit操作を実行するカスタムエディタウィンドウ
@@ -16,12 +18,10 @@ public class GitWindow : EditorWindow
     private Vector2 scrollPosition;
 
     private string commitMessage = "コミットメッセージ";
-    private string newBranchName = "NewBranch";
+    private string newBranchName = "";
     private string[] branches = new string[] { "main" };
-    private int branchIndex1 = 0;
-    private int branchIndex2 = 0;
+    private int mergeTargetIndex = 0;
     private int currentBranchIndex = 0;
-    private string currentBranchName = "main";
 
     private readonly HashSet<string> fetchedFiles = new();
     private FileSystemWatcher fileWatcher;
@@ -40,67 +40,74 @@ public class GitWindow : EditorWindow
 
         EditorGUILayout.BeginHorizontal();
         GUILayout.Label("Git操作", EditorStyles.boldLabel);
+        string currentBranchName = branches[currentBranchIndex];
         GUILayout.Label(currentBranchName, EditorStyles.boldLabel);
         EditorGUILayout.EndHorizontal();
 
-        if (GUILayout.Button("Add", GUILayout.Width(200)))
+        try
         {
-            ExecuteGitCommand("add .");
-        }
+            if (GUILayout.Button("Add", GUILayout.Width(200)))
+            {
+                ExecuteGitCommand("add .");
+            }
 
-        commitMessage = EditorGUILayout.TextField(commitMessage, GUILayout.Width(200), GUILayout.Height(60));
-        if (GUILayout.Button("Commit", GUILayout.Width(200)))
+            commitMessage = EditorGUILayout.TextField(commitMessage, GUILayout.Width(200), GUILayout.Height(60));
+            if (GUILayout.Button("Commit", GUILayout.Width(200)))
+            {
+                ExecuteGitCommand($"commit -m \"{commitMessage}\"");
+                commitMessage = "コミットメッセージ";
+            }
+
+            if (GUILayout.Button("Push", GUILayout.Width(200)))
+            {
+                ExecuteGitCommand("push");
+            }
+
+            if (GUILayout.Button("Pull", GUILayout.Width(200)))
+            {
+                ExecuteGitCommand("pull");
+            }
+
+            if (GUILayout.Button("Status", GUILayout.Width(200)))
+            {
+                ExecuteGitCommand("status");
+            }
+
+            if (GUILayout.Button("Log", GUILayout.Width(200)))
+            {
+                ExecuteGitCommand("log --oneline -n 10"); // 最新10件のログを簡易表示
+            }
+
+            newBranchName = EditorGUILayout.TextField(newBranchName, GUILayout.Width(200));
+            if (GUILayout.Button("ブランチを作成", GUILayout.Width(200)))
+            {
+                if (string.IsNullOrEmpty(newBranchName)) return;
+
+                ExecuteGitCommand($"branch {newBranchName}");
+                FreshBranches();
+                newBranchName = "";
+            }
+
+            currentBranchIndex = EditorGUILayout.Popup(currentBranchIndex, branches, GUILayout.Width(200));
+            if (GUILayout.Button("ブランチを切り替え", GUILayout.Width(200)))
+            {
+                ExecuteGitCommand($"switch {branches[currentBranchIndex]}");
+            }
+
+            EditorGUILayout.BeginHorizontal();
+            mergeTargetIndex = EditorGUILayout.Popup(mergeTargetIndex, branches, GUILayout.Width(200));
+            EditorGUILayout.EndHorizontal();
+            if (GUILayout.Button("ブランチをマージ", GUILayout.Width(200)))
+            {
+                MergeBranches(mergeTargetIndex);
+            }
+        }
+        finally
         {
-            ExecuteGitCommand($"commit -m \"{commitMessage}\"");
-            commitMessage = "コミットメッセージ";
+            EditorGUILayout.EndVertical();
+
+            EditorGUILayout.EndScrollView();
         }
-
-        if (GUILayout.Button("Push", GUILayout.Width(200)))
-        {
-            ExecuteGitCommand("push");
-        }
-
-        if (GUILayout.Button("Pull", GUILayout.Width(200)))
-        {
-            ExecuteGitCommand("pull");
-        }
-
-        if (GUILayout.Button("Status", GUILayout.Width(200)))
-        {
-            ExecuteGitCommand("status");
-        }
-
-        if (GUILayout.Button("Log", GUILayout.Width(200)))
-        {
-            ExecuteGitCommand("log --oneline -n 10"); // 最新10件のログを簡易表示
-        }
-
-        newBranchName = EditorGUILayout.TextField(newBranchName, GUILayout.Width(200));
-        if (GUILayout.Button("ブランチを作成", GUILayout.Width(200)))
-        {
-            ExecuteGitCommand($"branch {newBranchName}");
-            FreshBranches();
-        }
-
-        currentBranchIndex = EditorGUILayout.Popup(currentBranchIndex, branches, GUILayout.Width(200));
-        if (GUILayout.Button("ブランチを切り替え", GUILayout.Width(200)))
-        {
-            ExecuteGitCommand($"switch {branches[currentBranchIndex]}");
-        }
-
-        EditorGUILayout.BeginHorizontal();
-        branchIndex1 = EditorGUILayout.Popup(branchIndex1, branches, GUILayout.Width(150));
-        GUILayout.Label("←", new GUIStyle(EditorStyles.boldLabel) { alignment = TextAnchor.MiddleCenter }, GUILayout.Width(20));
-        branchIndex2 = EditorGUILayout.Popup(branchIndex2, branches, GUILayout.Width(150));
-        EditorGUILayout.EndHorizontal();
-        if (GUILayout.Button("ブランチをマージ", GUILayout.Width(200)))
-        {
-            MergeBranches(branches[branchIndex1], branches[branchIndex2]);
-        }
-
-        EditorGUILayout.EndVertical();
-
-        EditorGUILayout.EndScrollView();
     }
 
     private void OnEnable()
@@ -133,9 +140,58 @@ public class GitWindow : EditorWindow
         }
     }
 
-    private void MergeBranches(string _branch1, string _branch2)
+    private void MergeBranches(int _mergeTargetIndex)
     {
-        UnityEngine.Debug.Log(_branch1 + _branch2) ;
+        bool hasConflicts = CheckConflicts(branches[_mergeTargetIndex]);
+        if (hasConflicts)
+        {
+            Debug.Log("コンフリクトがあります");
+        }
+        else
+        {
+            Debug.Log("コンフリクトがありません");
+            ExecuteGitCommand("push origin main");
+        }
+        UnityEngine.Debug.Log(branches[_mergeTargetIndex] + branches[currentBranchIndex]);
+    }
+
+    private bool CheckConflicts(string _mergeTarget)
+    {
+        try
+        {
+            // リモートの最新状態を取得
+            RunGitCommand("fetch");
+
+            // リモートブランチとの比較
+            var result = RunGitCommand($"merge-base --is-ancestor origin/{_mergeTarget} {_mergeTarget}");
+
+            if (result.exitCode == 0)
+            {
+                Debug.Log("リモートの変更がローカルに取り込まれています。プッシュしても問題ありません。");
+                return false; // コンフリクトなし
+            }
+
+            // 仮想マージを試行
+            result = RunGitCommand($"merge --no-commit --no-ff origin/{_mergeTarget}");
+
+            if (result.exitCode == 0)
+            {
+                Debug.Log("コンフリクトはありません。プッシュ可能です。");
+                // 仮想マージを元に戻す
+                RunGitCommand("merge --abort");
+                return false;
+            }
+
+            Debug.LogWarning("コンフリクトが発生する可能性があります。プッシュを中止してください。");
+            RunGitCommand("merge --abort");
+            return true;
+
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"Git操作中にエラーが発生しました: {ex.Message}");
+            return true;
+        }
     }
 
     private void StartFileWatcher()
@@ -268,6 +324,34 @@ public class GitWindow : EditorWindow
         {
             UnityEngine.Debug.LogError(error);
         }
+    }
+
+    /// <summary>
+    /// Gitコマンドを実行し、その結果を取得する。
+    /// </summary>
+    /// <param name="arguments">Gitコマンドの引数</param>
+    /// <returns>コマンド実行結果 (標準出力とエラー出力)</returns>
+    private static (int exitCode, string output, string error) RunGitCommand(string arguments)
+    {
+        var process = new Process
+        {
+            StartInfo = new ProcessStartInfo
+            {
+                FileName = "git",
+                Arguments = arguments,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            }
+        };
+
+        process.Start();
+        string output = process.StandardOutput.ReadToEnd();
+        string error = process.StandardError.ReadToEnd();
+        process.WaitForExit();
+
+        return (process.ExitCode, output, error);
     }
 
     /// <summary>
