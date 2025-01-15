@@ -16,6 +16,7 @@ public class Test : MonoBehaviour
 
     private void CheckMerge()
     {
+        Debug.Log("aaaaaaaa");
         return;
     }
 }
