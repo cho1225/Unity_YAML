@@ -154,6 +154,7 @@ public class GitWindow : EditorWindow
         {
             Debug.Log("コンフリクトがありません");
             ExecuteGitCommand($"merge {branches[_mergeTargetIndex]} --no-ff");
+            ExecuteGitCommand($"push --set-upstream origin {branches[currentBranchIndex]}");
         }
         Debug.Log(branches[_mergeTargetIndex] + branches[currentBranchIndex]);
     }
