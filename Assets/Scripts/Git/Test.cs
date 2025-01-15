@@ -13,4 +13,9 @@ public class Test : MonoBehaviour
     {
         
     }
+
+    private void CheckMerge()
+    {
+        return;
+    }
 }

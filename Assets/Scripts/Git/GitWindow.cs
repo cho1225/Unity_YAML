@@ -153,9 +153,9 @@ public class GitWindow : EditorWindow
         else
         {
             Debug.Log("コンフリクトがありません");
-            ExecuteGitCommand("push origin main");
+            ExecuteGitCommand($"merge {branches[_mergeTargetIndex]} --no-ff");
         }
-        UnityEngine.Debug.Log(branches[_mergeTargetIndex] + branches[currentBranchIndex]);
+        Debug.Log(branches[_mergeTargetIndex] + branches[currentBranchIndex]);
     }
 
     private bool CheckConflicts(string _mergeTarget)
