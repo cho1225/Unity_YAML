@@ -94,6 +94,7 @@ public class GitWindow : EditorWindow
             {
                 ExecuteGitCommand($"switch {branches[switchBranchIndex]}");
                 currentBranchIndex = GetCurrentBranchIndex();
+                AssetDatabase.Refresh();
             }
 
             EditorGUILayout.BeginHorizontal();
