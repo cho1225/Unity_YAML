@@ -21,6 +21,7 @@ public class GitWindow : EditorWindow
     private string newBranchName = "";
     private string[] branches = new string[] { "main" };
     private int mergeTargetIndex = 0;
+    private int switchBranchIndex = 0;
     private int currentBranchIndex = 0;
 
     private readonly HashSet<string> fetchedFiles = new();
@@ -88,10 +89,11 @@ public class GitWindow : EditorWindow
                 newBranchName = "";
             }
 
-            currentBranchIndex = EditorGUILayout.Popup(currentBranchIndex, branches, GUILayout.Width(200));
+            switchBranchIndex = EditorGUILayout.Popup(switchBranchIndex, branches, GUILayout.Width(200));
             if (GUILayout.Button("ブランチを切り替え", GUILayout.Width(200)))
             {
                 ExecuteGitCommand($"switch {branches[currentBranchIndex]}");
+                currentBranchIndex = GetCurrentBranchIndex();
             }
 
             EditorGUILayout.BeginHorizontal();
@@ -112,8 +114,8 @@ public class GitWindow : EditorWindow
 
     private void OnEnable()
     {
-
         FreshBranches();
+        currentBranchIndex = GetCurrentBranchIndex();
         StartFileWatcher(); // ファイル監視を開始
     }
 
@@ -326,6 +328,29 @@ public class GitWindow : EditorWindow
         }
     }
 
+    private int GetCurrentBranchIndex()
+    {
+        var result = RunGitCommand("rev-parse --abbrev-ref HEAD");
+
+        if (!string.IsNullOrEmpty(result.error))
+        {
+            Debug.LogError($"Gitエラー: {result.error}");
+            return 0;
+        }
+
+        for (int i = 0; i < branches.Length; i++)
+        {
+            if (result.output == branches[i])
+            {
+                return i;
+            }
+        }
+
+        Debug.Log($"現在のブランチが存在しません:{result.output}");
+
+        return 0;
+    }
+
     /// <summary>
     /// Gitコマンドを実行し、その結果を取得する。
     /// </summary>
@@ -347,7 +372,7 @@ public class GitWindow : EditorWindow
         };
 
         process.Start();
-        string output = process.StandardOutput.ReadToEnd();
+        string output = process.StandardOutput.ReadToEnd().Trim();
         string error = process.StandardError.ReadToEnd();
         process.WaitForExit();
 
