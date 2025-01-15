@@ -166,7 +166,7 @@ public class GitWindow : EditorWindow
             RunGitCommand("fetch");
 
             // リモートブランチとの比較
-            var result = RunGitCommand($"merge-base --is-ancestor origin/{_mergeTarget} {_mergeTarget}");
+            var result = RunGitCommand($"merge-base --is-ancestor origin/{_mergeTarget} {branches[currentBranchIndex]}");
 
             if (result.exitCode == 0)
             {
