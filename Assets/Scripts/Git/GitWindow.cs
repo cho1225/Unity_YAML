@@ -92,7 +92,7 @@ public class GitWindow : EditorWindow
             switchBranchIndex = EditorGUILayout.Popup(switchBranchIndex, branches, GUILayout.Width(200));
             if (GUILayout.Button("ブランチを切り替え", GUILayout.Width(200)))
             {
-                ExecuteGitCommand($"switch {branches[currentBranchIndex]}");
+                ExecuteGitCommand($"switch {branches[switchBranchIndex]}");
                 currentBranchIndex = GetCurrentBranchIndex();
             }
 
