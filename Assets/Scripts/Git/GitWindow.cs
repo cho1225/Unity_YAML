@@ -153,7 +153,7 @@ public class GitWindow : EditorWindow
         else
         {
             Debug.Log("コンフリクトがありません");
-            ExecuteGitCommand($"merge {branches[_mergeTargetIndex]}");
+            ExecuteGitCommand($"merge {branches[_mergeTargetIndex]} --no-ff");
         }
         Debug.Log(branches[_mergeTargetIndex] + branches[currentBranchIndex]);
     }
