@@ -19,7 +19,7 @@ public class GitWindow : EditorWindow
     private void OnEnable()
     {
         RefreshBranches();
-        currentBranchIndex = CommandExecutor.GetCurrentBranchIndex(branches);
+        InitializeBranchIndex();
         fileWatcher = new GitFileWatcher(RefreshChangedFiles);
     }
 
@@ -63,9 +63,7 @@ public class GitWindow : EditorWindow
         {
             CommandExecutor.Execute($"branch {newBranchName}");
             RefreshBranches();
-            currentBranchIndex = CommandExecutor.GetCurrentBranchIndex(branches);
-            switchBranchIndex = 0;
-            mergeTargetIndex = 0;
+            InitializeBranchIndex();
             newBranchName = "";
         }
 
@@ -73,7 +71,7 @@ public class GitWindow : EditorWindow
         if (GUILayout.Button("ブランチを切り替え"))
         {
             CommandExecutor.Execute($"switch {branches[switchBranchIndex]}");
-            currentBranchIndex = CommandExecutor.GetCurrentBranchIndex(branches);
+            InitializeBranchIndex();
             AssetDatabase.Refresh();
         }
     }
@@ -92,29 +90,14 @@ public class GitWindow : EditorWindow
         }
     }
 
+    private void InitializeBranchIndex()
+    {
+        currentBranchIndex = CommandExecutor.GetCurrentBranchIndex(branches);
+        switchBranchIndex = 0;
+        mergeTargetIndex = 0;
+    }
+
     private void RefreshBranches() => branches = CommandExecutor.GetBranches();
+
     private void RefreshChangedFiles() => fileWatcher.FetchChangedFiles();
 }
-
-
-///// <summary>
-///// エラーメッセージが警告かどうかを判断する。
-///// </summary>
-///// <param name="message">エラーメッセージ</param>
-///// <returns>Warningであればtrue、そうでなければfalse</returns>
-//private bool IsWarning(string message)
-//    {
-//        // "warning" という単語が含まれている場合はWarningとする
-//        return Regex.IsMatch(message, @"\bwarning\b", RegexOptions.IgnoreCase);
-//    }
-
-//    /// <summary>
-//    /// メッセージが成功メッセージかを確認する
-//    /// </summary>
-//    /// <param name="message">エラーメッセージ</param>
-//    /// <returns>成功メッセージならtrue、そうでなければfalse</returns>
-//    private bool IsSuccessMessage(string message)
-//    {
-//        return message.StartsWith("To https://") || message.StartsWith("Switched") || Regex.IsMatch(message, @"^\s+\d+\.\.\d+");
-//    }
-//}

@@ -10,9 +10,9 @@ public class GitFileWatcher : IDisposable
     private readonly HashSet<string> fetchedFiles = new();
     private readonly Action onFileChanged;
 
-    public GitFileWatcher(Action onFileChanged)
+    public GitFileWatcher(Action _onFileChanged)
     {
-        this.onFileChanged = onFileChanged;
+        this.onFileChanged = _onFileChanged;
         fileWatcher = new FileSystemWatcher(Path.GetFullPath(Application.dataPath + "/.."))
         {
             NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.DirectoryName,
