@@ -63,6 +63,9 @@ public class GitWindow : EditorWindow
         {
             CommandExecutor.Execute($"branch {newBranchName}");
             RefreshBranches();
+            currentBranchIndex = CommandExecutor.GetCurrentBranchIndex(branches);
+            switchBranchIndex = 0;
+            mergeTargetIndex = 0;
             newBranchName = "";
         }
 
