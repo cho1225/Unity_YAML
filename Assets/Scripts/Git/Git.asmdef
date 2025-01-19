@@ -1,0 +1,17 @@
+{
+	"name": "Git",
+	"rootNamespace": "",
+    "references": [
+        "AssetYamlTreeView"
+    ],
+	"includePlatforms": [
+        "Editor"
+    ],
+	"excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "noEngineReferences": false
+}
