@@ -1,5 +1,6 @@
 using UnityEditor;
 using UnityEngine;
+using MergeYamlTree;
 using Debug = UnityEngine.Debug;
 
 public class GitWindow : EditorWindow
@@ -81,13 +82,16 @@ public class GitWindow : EditorWindow
         mergeTargetIndex = EditorGUILayout.Popup(mergeTargetIndex, branches);
         if (GUILayout.Button("ブランチをマージ"))
         {
-            
-            //if (!CommandExecutor.HasConflicts(branches[mergeTargetIndex]))
-            //{
-            //    CommandExecutor.Execute($"merge {branches[mergeTargetIndex]} --no-ff");
-            //    CommandExecutor.Execute($"push origin {branches[currentBranchIndex]}");
-            //}
-            //else Debug.Log("コンフリクトがあります");
+            if (!CommandExecutor.HasConflicts(branches[mergeTargetIndex]))
+            {
+                CommandExecutor.Execute($"merge {branches[mergeTargetIndex]} --no-ff");
+                CommandExecutor.Execute($"push origin {branches[currentBranchIndex]}");
+            }
+            else
+            {
+                 
+                Debug.Log("コンフリクトがあります");
+            }
         }
     }
 

@@ -27,7 +27,7 @@ public class GitFileWatcher : IDisposable
     {
         var result = CommandExecutor.GetChangedFiles();
         var changedFiles = result.Split('\n').Select(l => l.Trim()).Where(l => !string.IsNullOrEmpty(l)).ToArray();
-        foreach (var file in changedFiles) if (fetchedFiles.Add(file)) Debug.Log(file);
+        //foreach (var file in changedFiles) if (fetchedFiles.Add(file)) Debug.Log(file);
     }
 
     public void Dispose() => fileWatcher.Dispose();

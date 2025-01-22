@@ -1,28 +1,22 @@
-// 引用：https://github.com/satanabe1/asset-yaml-tree-view
-
 using System.IO;
 using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor.IMGUI.Controls;
 using UnityEditor;
-
-namespace AssetYamlTree
+namespace MergeYamlTree
 {
-    /// <summary>
-    /// YAMLデータを階層的に表示するウィンドウ
-    /// </summary>
-    internal class AssetYamlTreeViewWindow : EditorWindow
+    internal class MergeYamlTreeViewWindow : EditorWindow
     {
         [SerializeField]
         private TreeViewState _treeViewState;
 
-        private AssetYamlTreeView _treeView;
+        private MergeYamlTreeView _treeView;
         private SearchField _searchField;
 
         // 表示設定用のフィールド
         [SerializeField]
-        private AssetYamlTreeDisplayNameOption _displayNameOption;
+        private MergeYamlTreeDisplayNameOption _displayNameOption;
 
         [SerializeField]
         private bool _showObjectHeaderIcon;
@@ -37,8 +31,8 @@ namespace AssetYamlTree
         /// <summary>
         /// メニューからツールウィンドウを開く
         /// </summary>
-        [MenuItem("Tools/Asset Yaml Tree Viewer", false, 1200)]
-        private static void Open() => GetWindow<AssetYamlTreeViewWindow>(nameof(AssetYamlTreeViewWindow));
+        [MenuItem("Tools/Merge Yaml Tree Viewer", false, 1200)]
+        private static void Open() => GetWindow<MergeYamlTreeViewWindow>(nameof(MergeYamlTreeViewWindow));
 
         /// <summary>
         /// ウィンドウが有効になったら初期化実行
@@ -46,7 +40,7 @@ namespace AssetYamlTree
         private void OnEnable()
         {
             _treeViewState ??= new TreeViewState();
-            _treeView = new AssetYamlTreeView(_treeViewState);
+            _treeView = new MergeYamlTreeView(_treeViewState);
             _searchField = new SearchField();
             _searchField.downOrUpArrowKeyPressed += _treeView.SetFocusAndEnsureSelectedItem;
             ReloadTreeView();
@@ -62,7 +56,7 @@ namespace AssetYamlTree
             if (_selecteds == null || _selecteds.Length == 0) return;
 
             int id = 1;
-            var merged = Enumerable.Empty<AssetYamlTreeElement>();
+            var merged = Enumerable.Empty<MergeYamlTreeElement>();
 
             foreach (var selected in _selecteds)
             {
@@ -70,7 +64,7 @@ namespace AssetYamlTree
                 if (AssetDatabase.IsValidFolder(path) && File.Exists(path + ".meta")) path += ".meta";
 
                 // ツリー要素を構築
-                var (elements, nextId) = AssetYamlTreeUtil.BuildElements(id, path);
+                var (elements, nextId) = MergeYamlTreeUtil.BuildElements(id, path);
                 merged = merged.Concat(elements);
                 id = nextId;
             }
@@ -101,8 +95,8 @@ namespace AssetYamlTree
             // ツールバー関係
             using (new EditorGUILayout.HorizontalScope(EditorStyles.toolbar))
             {
-                var classIdToClassName = _displayNameOption.HasFlag(AssetYamlTreeDisplayNameOption.ClassIdToClassName);
-                var guidToAssetPath = _displayNameOption.HasFlag(AssetYamlTreeDisplayNameOption.GuidToAssetName);
+                var classIdToClassName = _displayNameOption.HasFlag(MergeYamlTreeDisplayNameOption.ClassIdToClassName);
+                var guidToAssetPath = _displayNameOption.HasFlag(MergeYamlTreeDisplayNameOption.GuidToAssetName);
 
                 _showObjectHeaderIcon = EditorGUILayout.ToggleLeft("Icon", _showObjectHeaderIcon, GUILayout.Width(50f));
                 classIdToClassName = EditorGUILayout.ToggleLeft("ClassIdToName", classIdToClassName, GUILayout.Width(110f));
@@ -113,9 +107,9 @@ namespace AssetYamlTree
                 _searchString = _searchField.OnToolbarGUI(_treeView.searchString);
                 _treeView.searchString = _searchString;
 
-                _displayNameOption = AssetYamlTreeDisplayNameOption.Default;
-                if (classIdToClassName) _displayNameOption |= AssetYamlTreeDisplayNameOption.ClassIdToClassName;
-                if (guidToAssetPath) _displayNameOption |= AssetYamlTreeDisplayNameOption.GuidToAssetName;
+                _displayNameOption = MergeYamlTreeDisplayNameOption.Default;
+                if (classIdToClassName) _displayNameOption |= MergeYamlTreeDisplayNameOption.ClassIdToClassName;
+                if (guidToAssetPath) _displayNameOption |= MergeYamlTreeDisplayNameOption.GuidToAssetName;
             }
 
             _treeView.ShowObjectHeaderIcon = _showObjectHeaderIcon;

@@ -1,5 +1,3 @@
- // 引用：https://github.com/satanabe1/asset-yaml-tree-view
-
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -15,9 +13,9 @@ using UnityEditor;
 using UnityEditor.Experimental;
 using UnityEngine;
 
-namespace AssetYamlTree
+namespace MergeYamlTree
 {
-    internal static class AssetYamlTreeUtil
+    internal static class MergeYamlTreeUtil
     {
         public enum ClassId
         {
@@ -27,27 +25,27 @@ namespace AssetYamlTree
 
         private static int _currentId;
 
-        public static bool HasFlags(AssetYamlTreeDisplayNameOption option, AssetYamlTreeDisplayNameOption flag)
+        public static bool HasFlags(MergeYamlTreeDisplayNameOption option, MergeYamlTreeDisplayNameOption flag)
         {
             return (option & flag) == flag;
         }
 
-        public static string GetValue(AssetYamlTreeElement element, string path)
+        public static string GetValue(MergeYamlTreeElement element, string path)
         {
             return GetValue(element, path, x => x.Value);
         }
 
-        public static Texture2D GetIcon(AssetYamlTreeElement element, string path)
+        public static Texture2D GetIcon(MergeYamlTreeElement element, string path)
         {
             return GetValue(element, path, x => x.Icon);
         }
 
-        private static T GetValue<T>(AssetYamlTreeElement element, string path, System.Func<AssetYamlTreeElement, T> getValue)
+        private static T GetValue<T>(MergeYamlTreeElement element, string path, System.Func<MergeYamlTreeElement, T> getValue)
         {
             if (element == null || path == null) return default;
             return GetValueRecursive(element, path.Split('/').ToList(), getValue);
 
-            static T GetValueRecursive(AssetYamlTreeElement element, List<string> pathParts, System.Func<AssetYamlTreeElement, T> getValue)
+            static T GetValueRecursive(MergeYamlTreeElement element, List<string> pathParts, System.Func<MergeYamlTreeElement, T> getValue)
             {
                 var first = pathParts.First();
                 pathParts.RemoveAt(0);
@@ -62,14 +60,11 @@ namespace AssetYamlTree
             }
         }
 
-        /// <summary>
-        /// '--- !u!114 &11400000' で始まる要素のelementを生成する
-        /// </summary>
-        private static AssetYamlTreeElement BuildObjectHeaderElements(string objectHeader, YamlDocument[] documents)
+        private static MergeYamlTreeElement BuildObjectHeaderElements(string objectHeader, YamlDocument[] documents)
         {
-            var classId = UnityAssetYamlParser.GetClassIdByObjectHeader(objectHeader);
+            var classId = MergeUnityYamlParser.GetClassIdByObjectHeader(objectHeader);
             var icon = GetMiniTypeThumbnailFromClassID(classId);
-            var objectHeaderElement = new AssetYamlObjectHeaderElement
+            var objectHeaderElement = new MergeYamlObjectHeaderElement
             {
                 Id = _currentId++,
                 Name = objectHeader,
@@ -102,18 +97,18 @@ namespace AssetYamlTree
             return objectHeaderElement;
         }
 
-        public static (AssetYamlTreeElement[] elements, int nextId) BuildElements(int startElementId, string path)
+        public static (MergeYamlTreeElement[] elements, int nextId) BuildElements(int startElementId, string path)
         {
             _currentId = startElementId;
-            var root = new AssetYamlTreeElement
+            var root = new MergeYamlTreeElement
             {
                 Id = _currentId++,
                 Name = Path.GetFileName(path),
                 Icon = GetIcon(path),
                 AssetPath = path,
             };
-            var objectRoots = new List<AssetYamlTreeElement>();
-            foreach (var (objectHeader, documents) in UnityAssetYamlParser.Parse(path))
+            var objectRoots = new List<MergeYamlTreeElement>();
+            foreach (var (objectHeader, documents) in MergeUnityYamlParser.Parse(path))
             {
                 // UnityYaml
                 if (objectHeader != null)
@@ -164,11 +159,11 @@ namespace AssetYamlTree
             return GetIcon(AssetDatabase.GetMainAssetTypeAtPath(assetPath));
         }
 
-        private static IEnumerable<AssetYamlTreeElement> YamlNodeToTreeElement(AssetYamlTreeElement parentElement, YamlNode node)
+        private static IEnumerable<MergeYamlTreeElement> YamlNodeToTreeElement(MergeYamlTreeElement parentElement, YamlNode node)
         {
             if (node is YamlScalarNode scalarNode)
             {
-                yield return new AssetYamlTreeElement
+                yield return new MergeYamlTreeElement
                 {
                     Id = _currentId++,
                     Name = scalarNode.Value,

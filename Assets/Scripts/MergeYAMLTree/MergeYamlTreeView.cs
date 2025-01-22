@@ -1,5 +1,3 @@
-// 引用：https://github.com/satanabe1/asset-yaml-tree-view
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,23 +6,23 @@ using UnityEditor;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 
-namespace AssetYamlTree
+namespace MergeYamlTree
 {
-    internal class AssetYamlTreeView : TreeView
+    internal class MergeYamlTreeView : TreeView
     {
-        private AssetYamlTreeElement[] _elements;
+        private MergeYamlTreeElement[] _elements;
         public bool IsInitialized => _elements != null;
 
-        public AssetYamlTreeDisplayNameOption DisplayNameOption { get; set; }
+        public MergeYamlTreeDisplayNameOption DisplayNameOption { get; set; }
         public bool ShowObjectHeaderIcon { get; set; }
 
         public TreeViewItem RootItem { get; private set; }
 
-        public AssetYamlTreeView(TreeViewState treeViewState) : base(treeViewState)
+        public MergeYamlTreeView(TreeViewState treeViewState) : base(treeViewState)
         {
         }
 
-        public void SetElements(AssetYamlTreeElement[] elements)
+        public void SetElements(MergeYamlTreeElement[] elements)
         {
             _elements = elements;
             RootItem = BuildRoot();
@@ -36,7 +34,7 @@ namespace AssetYamlTree
             var root = new TreeViewItem { id = 0, depth = -1, displayName = "Root" };
             foreach (var baseElement in _elements)
             {
-                var baseItem = new AssetYamlTreeViewItem(baseElement);
+                var baseItem = new MergeYamlTreeViewItem(baseElement);
                 root.AddChild(baseItem);
                 AddChildrenRecursive(baseElement, baseItem);
             }
@@ -45,11 +43,11 @@ namespace AssetYamlTree
             return root;
         }
 
-        private static void AddChildrenRecursive(AssetYamlTreeElement model, TreeViewItem item)
+        private static void AddChildrenRecursive(MergeYamlTreeElement model, TreeViewItem item)
         {
             foreach (var childModel in model.Children)
             {
-                var childItem = new AssetYamlTreeViewItem(childModel);
+                var childItem = new MergeYamlTreeViewItem(childModel);
                 item.AddChild(childItem);
                 AddChildrenRecursive(childModel, childItem);
             }
@@ -57,7 +55,7 @@ namespace AssetYamlTree
 
         protected override void RowGUI(RowGUIArgs args)
         {
-            if (!(args.item is AssetYamlTreeViewItem item))
+            if (!(args.item is MergeYamlTreeViewItem item))
             {
                 base.RowGUI(args);
                 return;
@@ -72,7 +70,7 @@ namespace AssetYamlTree
         protected override void DoubleClickedItem(int id)
         {
             base.DoubleClickedItem(id);
-            var first = FindRows(new List<int> { id }).FirstOrDefault() as AssetYamlTreeViewItem;
+            var first = FindRows(new List<int> { id }).FirstOrDefault() as MergeYamlTreeViewItem;
             if (first?.Data?.AssetPath == null) return;
             AssetDatabase.OpenAsset(AssetDatabase.LoadMainAssetAtPath(first.Data.AssetPath));
         }
@@ -102,12 +100,12 @@ namespace AssetYamlTree
 
         protected override bool DoesItemMatchSearch(TreeViewItem item, string search)
         {
-            var assetYamlTreeViewItem = item as AssetYamlTreeViewItem;
+            var assetYamlTreeViewItem = item as MergeYamlTreeViewItem;
             if (assetYamlTreeViewItem == null) return base.DoesItemMatchSearch(item, search);
             if (Hit(assetYamlTreeViewItem.Data.Name, search)) return true;
             if (Hit(assetYamlTreeViewItem.Data.Value, search)) return true;
             if (Hit(assetYamlTreeViewItem.Data.AssetPath, search)) return true;
-            var headerObj = assetYamlTreeViewItem.Data as AssetYamlObjectHeaderElement;
+            var headerObj = assetYamlTreeViewItem.Data as MergeYamlObjectHeaderElement;
             if (headerObj == null) return base.DoesItemMatchSearch(item, search);
             if (Hit(headerObj.ClassName, search)) return true;
             if (Hit(headerObj.ClassId.ToString(), search)) return true;

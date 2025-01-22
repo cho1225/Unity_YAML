@@ -2,7 +2,8 @@
 	"name": "Git",
 	"rootNamespace": "",
     "references": [
-        "AssetYamlTreeView"
+        "AssetYamlTreeView",
+        "MergeYamlTreeView"
     ],
 	"includePlatforms": [
         "Editor"

@@ -1,13 +1,11 @@
- // 引用：https://github.com/satanabe1/asset-yaml-tree-view
-
-using UnityEditor.IMGUI.Controls;
 using UnityEngine;
+using UnityEditor.IMGUI.Controls;
 
-namespace AssetYamlTree
+namespace MergeYamlTree
 {
-    internal class AssetYamlTreeViewItem : TreeViewItem
+    internal class MergeYamlTreeViewItem : TreeViewItem
     {
-        public AssetYamlTreeElement Data { get; }
+        public MergeYamlTreeElement Data { get; }
 
         public override int id
         {
@@ -27,10 +25,10 @@ namespace AssetYamlTree
             set => Data.Icon = value;
         }
 
-        public AssetYamlTreeDisplayNameOption DisplayNameOption { get; set; }
+        public MergeYamlTreeDisplayNameOption DisplayNameOption { get; set; }
         public bool ShowIcon { get; set; }
 
-        public AssetYamlTreeViewItem(AssetYamlTreeElement data)
+        public MergeYamlTreeViewItem(MergeYamlTreeElement data)
         {
             Data = data;
         }
