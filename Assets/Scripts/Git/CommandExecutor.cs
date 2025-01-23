@@ -1,7 +1,9 @@
 using System;
 using System.Linq;
 using System.Diagnostics;
+using System.IO;
 using System.Text;
+using System.Collections.Generic;
 using Debug = UnityEngine.Debug;
 
 public static class CommandExecutor
@@ -32,6 +34,32 @@ public static class CommandExecutor
         if (mergeResult.exitCode == 0) { Run("merge --abort"); return false; }
         Run("merge --abort");
         return true;
+    }
+
+    public static List<string> GetConflictFiles(string branch)
+    {
+        // コンフリクト中の可視化ファイルのパス
+        List<string> conflictFiles = new List<string>();
+
+        Run("fetch");
+        var mergeResult = Run($"merge --no-commit --no-ff origin/{branch}");
+
+        string output = Run("status --porcelain").output;
+        string[] lines = output.Split(new[] { '\n', '\r' }, System.StringSplitOptions.RemoveEmptyEntries);
+
+        foreach (var line in lines)
+        {
+            // コンフリクト中のファイルはUUから始まる
+            if (line.StartsWith("UU"))
+            {
+                string filePath = line.Substring(3).Trim();
+                conflictFiles.Add(filePath);
+            }
+        }
+
+        Run("merge --abort");
+
+        return conflictFiles;
     }
 
     public static string GetChangedFiles()

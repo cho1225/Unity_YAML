@@ -25,13 +25,12 @@ namespace MergeYamlTree
         private string _searchString;
 
         [SerializeField]
-        private string[] _selecteds;
+        public List<string> ConflictFiles { get; set; }
 
 
         /// <summary>
         /// メニューからツールウィンドウを開く
         /// </summary>
-        [MenuItem("Tools/Merge Yaml Tree Viewer", false, 1200)]
         private static void Open() => GetWindow<MergeYamlTreeViewWindow>(nameof(MergeYamlTreeViewWindow));
 
         /// <summary>
@@ -53,14 +52,14 @@ namespace MergeYamlTree
         private void ReloadTreeView()
         {
             // 現在アセットが選択されているか
-            if (_selecteds == null || _selecteds.Length == 0) return;
+            if (ConflictFiles == null || ConflictFiles.Count == 0) return;
 
             int id = 1;
             var merged = Enumerable.Empty<MergeYamlTreeElement>();
 
-            foreach (var selected in _selecteds)
+            foreach (var conflictFilePath in ConflictFiles)
             {
-                var path = AssetDatabase.GUIDToAssetPath(selected);
+                var path = conflictFilePath;
                 if (AssetDatabase.IsValidFolder(path) && File.Exists(path + ".meta")) path += ".meta";
 
                 // ツリー要素を構築
@@ -80,16 +79,6 @@ namespace MergeYamlTree
         /// </summary>
         private void OnGUI()
         {
-            // 選択されていないか変数の内容と選択内容が違う場合
-            if (_selecteds == null || (Selection.assetGUIDs.Length > 0 && !_selecteds.SequenceEqual(Selection.assetGUIDs)))
-            {
-                // 変数の内容と選択内容を一致させる
-                _selecteds = Selection.assetGUIDs;
-                // ツリー要素のリロード
-                ReloadTreeView();
-                ExpandAllNodes();
-            }
-
             EditorGUI.BeginChangeCheck();
 
             // ツールバー関係
