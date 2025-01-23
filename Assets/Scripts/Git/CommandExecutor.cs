@@ -49,13 +49,12 @@ public static class CommandExecutor
 
         foreach (var line in lines)
         {
-            Debug.Log(line);
             // コンフリクト中のファイルはUUから始まる
             if (line.StartsWith("UU"))
             {
                 string filePath = line.Substring(3).Trim();
-                File.Copy(filePath, $"{filePath}.unity", true);
-                conflictFiles.Add($"{filePath}.unity");
+                File.Copy(filePath, $"{filePath}.txt", true);
+                conflictFiles.Add($"{filePath}.txt");
             }
         }
 

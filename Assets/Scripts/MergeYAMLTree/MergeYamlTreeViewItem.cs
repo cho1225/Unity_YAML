@@ -6,6 +6,10 @@ namespace MergeYamlTree
     internal class MergeYamlTreeViewItem : TreeViewItem
     {
         public MergeYamlTreeElement Data { get; }
+        public string Source { 
+            get => Data.Source;
+            set => Data.Source = value;
+        }
 
         public override int id
         {

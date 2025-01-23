@@ -106,7 +106,7 @@ namespace MergeYamlTree
                 {
                     var headerElement = BuildObjectHeaderElements(objectHeader);
                     var convertedNodes = nodes
-                        .SelectMany(dict => dict.Select(kv => (kv.Key, kv.Value))) // Dictionary を (string, string) のリストに変換
+                        .SelectMany(dict => dict.Select(kv => (kv.Key, kv.Value, kv.Source))) // Dictionary を (string, string) のリストに変換
                         .ToList();
                     headerElement.Children.AddRange(ConvertToTreeElements(headerElement, convertedNodes));
                     objectRoots.Add(headerElement);
@@ -148,26 +148,41 @@ namespace MergeYamlTree
             return GetIcon(AssetDatabase.GetMainAssetTypeAtPath(assetPath));
         }
 
-        private static IEnumerable<MergeYamlTreeElement> ConvertToTreeElements(MergeYamlTreeElement parentElement, List<(string Key, string Value)> nodes)
+        private static IEnumerable<MergeYamlTreeElement> ConvertToTreeElements(
+    MergeYamlTreeElement parentElement, List<(string Key, string Value, string Source)> nodes)
         {
-            foreach (var (key, value) in nodes)
+            var groupedNodes = nodes.GroupBy(n => n.Key); // 同じキーの要素をまとめる
+
+            foreach (var group in groupedNodes)
             {
-                var element = new MergeYamlTreeElement
+                var elements = group.Select(n => new MergeYamlTreeElement
                 {
                     Id = _currentId++,
-                    Name = key,
-                    Value = value,
-                };
+                    Name = n.Key,
+                    Value = n.Value,
+                    Source = n.Source
+                }).ToList();
 
-                if (key == "guid")
+                // m_Color のように複数の値がある場合、それをすべて追加
+                if (elements.Count > 1)
                 {
-                    parentElement.Icon = GetAssetPreviewFromGUID(value);
-                    var path = AssetDatabase.GUIDToAssetPath(value);
-                    parentElement.AssetPath = path;
-                    element.AssetPath = path;
-                }
+                    var parent = new MergeYamlTreeElement
+                    {
+                        Id = _currentId++,
+                        Name = group.Key,
+                    };
 
-                yield return element;
+                    foreach (var element in elements)
+                    {
+                        parent.Children.Add(element);
+                    }
+
+                    yield return parent;
+                }
+                else
+                {
+                    yield return elements[0];
+                }
             }
         }
 

@@ -23,21 +23,21 @@ namespace MergeYamlTree
             return int.Parse(objectHeader.Substring(ObjectHeaderPrefix.Length).Split(' ')[0]);
         }
 
-        public static IEnumerable<(string objectHeader, Dictionary<string, string>[] documents)> Parse(string yamlPath)
+        public static IEnumerable<(string objectHeader, List<(string Key, string Value, string Source)>[] documents)> Parse(string yamlPath)
         {
             if (File.Exists(yamlPath))
             {
                 return yamlPath.EndsWith(".meta") ? ParseMetaYaml(yamlPath) : ParseAssetYaml(yamlPath);
             }
-            return new (string objectHeader, Dictionary<string, string>[] documents)[] { (null, new Dictionary<string, string>[0]) };
+            return new (string objectHeader, List<(string Key, string Value, string Source)>[] documents)[] { (null, new List<(string Key, string Value, string Source)>[0]) };
         }
 
-        private static IEnumerable<(string objectHeader, Dictionary<string, string>[] documents)> ParseMetaYaml(string yamlPath)
+        private static IEnumerable<(string objectHeader, List<(string Key, string Value, string Source)>[] documents)> ParseMetaYaml(string yamlPath)
         {
             yield return (null, ParseText(File.ReadAllText(yamlPath)));
         }
 
-        private static IEnumerable<(string objectHeader, Dictionary<string, string>[] documents)> ParseAssetYaml(string yamlPath)
+        private static IEnumerable<(string objectHeader, List<(string Key, string Value, string Source)>[] documents)> ParseAssetYaml(string yamlPath)
         {
             var lines = File.ReadLines(yamlPath);
             var sb = new StringBuilder();
@@ -62,10 +62,12 @@ namespace MergeYamlTree
                 yield return (header, ParseText(sb.ToString()));
         }
 
-        private static Dictionary<string, string>[] ParseText(string text)
+        private static List<(string Key, string Value, string Source)>[] ParseText(string text)
         {
-            var docs = new List<Dictionary<string, string>>();
-            var currentDoc = new Dictionary<string, string>();
+            var docs = new List<List<(string Key, string Value, string Source)>>();
+            var currentDoc = new List<(string Key, string Value, string Source)>();
+            string currentSource = "BASE";
+
             foreach (var line in text.Split('\n'))
             {
                 var trimmed = line.Trim();
@@ -73,12 +75,31 @@ namespace MergeYamlTree
                 {
                     continue;
                 }
+
+                // コンフリクトの開始を検出
+                if (trimmed.StartsWith("<<<<<<<"))
+                {
+                    currentSource = "HEAD";
+                    continue;
+                }
+                if (trimmed.StartsWith("======="))
+                {
+                    currentSource = "REMOTE";
+                    continue;
+                }
+                if (trimmed.StartsWith(">>>>>>>"))
+                {
+                    currentSource = "BASE";
+                    continue;
+                }
+
                 var parts = trimmed.Split(':', 2);
                 if (parts.Length == 2)
                 {
-                    currentDoc[parts[0].Trim()] = parts[1].Trim();
+                    currentDoc.Add((parts[0].Trim(), parts[1].Trim(), currentSource));
                 }
             }
+
             docs.Add(currentDoc);
             return docs.ToArray();
         }

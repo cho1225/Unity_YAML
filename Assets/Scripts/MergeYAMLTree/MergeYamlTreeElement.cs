@@ -18,6 +18,7 @@ namespace MergeYamlTree
         public int Id { get; set; }
         public string Name { get; set; }
         public string Value { get; set; }
+        public string Source { get; set; }
         public List<MergeYamlTreeElement> Children { get; set; } = new List<MergeYamlTreeElement>();
         public Texture2D Icon { get; set; }
         public string AssetPath { get; set; }

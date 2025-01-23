@@ -64,7 +64,24 @@ namespace MergeYamlTree
             item.DisplayNameOption = DisplayNameOption;
             item.ShowIcon = ShowObjectHeaderIcon;
 
+            if (!string.IsNullOrEmpty(item.Source))
+            {
+                if (item.Source == "HEAD")
+                {
+                    GUI.color = Color.green;
+                }
+                else if (item.Source.StartsWith("REMOTE"))
+                {
+                    GUI.color = Color.red;
+                }
+            }
+            else
+            {
+                GUI.color = Color.white;
+            }
+
             base.RowGUI(args);
+            GUI.color = Color.white;
         }
 
         protected override void DoubleClickedItem(int id)
