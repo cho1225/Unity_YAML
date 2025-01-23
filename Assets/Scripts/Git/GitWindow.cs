@@ -89,9 +89,8 @@ public class GitWindow : EditorWindow
             }
             else
             {
-                Debug.Log("コンフリクトあり");
-                //var windowOpener = new MergeYamlTreeViewOpener();
-                //windowOpener.OpenYamlTreeView(CommandExecutor.GetConflictFiles(branches[mergeTargetIndex]));
+                var windowOpener = new MergeYamlTreeViewOpener();
+                windowOpener.OpenYamlTreeView(CommandExecutor.GetConflictFiles(branches[mergeTargetIndex]));
             }
         }
     }
