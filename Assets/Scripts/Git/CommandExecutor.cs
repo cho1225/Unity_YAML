@@ -38,6 +38,7 @@ public static class CommandExecutor
 
     public static List<string> GetConflictFiles(string branch)
     {
+        const string filePathPrefix = "Assets/Scripts/MergeYAMLtree/";
         // コンフリクト中の可視化ファイルのパス
         List<string> conflictFiles = new List<string>();
 
@@ -45,7 +46,6 @@ public static class CommandExecutor
         var mergeResult = Run($"merge --no-commit --no-ff origin/{branch}");
 
         string output = Run("status --porcelain").output;
-        Debug.Log(mergeResult);
         string[] lines = output.Split(new[] { '\n', '\r' }, System.StringSplitOptions.RemoveEmptyEntries);
 
         foreach (var line in lines)
@@ -55,7 +55,8 @@ public static class CommandExecutor
             if (line.StartsWith("UU"))
             {
                 string filePath = line.Substring(3).Trim();
-                conflictFiles.Add(filePath);
+                File.Copy(filePath, filePath, true);
+                conflictFiles.Add($"{filePathPrefix}" + $"{filePath}");
             }
         }
 

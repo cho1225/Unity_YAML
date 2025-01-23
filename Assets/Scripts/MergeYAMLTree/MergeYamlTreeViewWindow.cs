@@ -87,6 +87,11 @@ namespace MergeYamlTree
                 var classIdToClassName = _displayNameOption.HasFlag(MergeYamlTreeDisplayNameOption.ClassIdToClassName);
                 var guidToAssetPath = _displayNameOption.HasFlag(MergeYamlTreeDisplayNameOption.GuidToAssetName);
 
+                if (GUILayout.Button("Load", GUILayout.Width(110f)))
+                {
+                    ReloadTreeView();
+                    ExpandAllNodes();
+                }
                 _showObjectHeaderIcon = EditorGUILayout.ToggleLeft("Icon", _showObjectHeaderIcon, GUILayout.Width(50f));
                 classIdToClassName = EditorGUILayout.ToggleLeft("ClassIdToName", classIdToClassName, GUILayout.Width(110f));
                 guidToAssetPath = EditorGUILayout.ToggleLeft("GuidToName", guidToAssetPath);
