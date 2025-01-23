@@ -18,37 +18,31 @@ namespace MergeYamlTree
     {
         private const string ObjectHeaderPrefix = "--- !u!";
 
-        /// <summary>
-        /// YAMLNodeのヘッダーからクラスIDをとってくる
-        /// クラスIDはそのオブジェクトが属しているグループを表している
-        /// </summary>
-        /// <param name="objectHeader">YAMLNodeのヘッダーの文字列</param>
-        /// <returns>クラスID</returns>
         public static int GetClassIdByObjectHeader(string objectHeader)
         {
             return int.Parse(objectHeader.Substring(ObjectHeaderPrefix.Length).Split(' ')[0]);
         }
 
-        public static IEnumerable<(string objectHeader, YamlDocument[] documents)> Parse(string yamlPath)
+        public static IEnumerable<(string objectHeader, Dictionary<string, string>[] documents)> Parse(string yamlPath)
         {
             if (File.Exists(yamlPath))
             {
                 return yamlPath.EndsWith(".meta") ? ParseMetaYaml(yamlPath) : ParseAssetYaml(yamlPath);
             }
-
-            return new (string objectHeader, YamlDocument[] documents)[] { (null, new YamlDocument[] { }) };
+            return new (string objectHeader, Dictionary<string, string>[] documents)[] { (null, new Dictionary<string, string>[0]) };
         }
 
-        private static IEnumerable<(string objectHeader, YamlDocument[] documents)> ParseMetaYaml(string yamlPath)
+        private static IEnumerable<(string objectHeader, Dictionary<string, string>[] documents)> ParseMetaYaml(string yamlPath)
         {
             yield return (null, ParseText(File.ReadAllText(yamlPath)));
         }
 
-        private static IEnumerable<(string objectHeader, YamlDocument[] documents)> ParseAssetYaml(string yamlPath)
+        private static IEnumerable<(string objectHeader, Dictionary<string, string>[] documents)> ParseAssetYaml(string yamlPath)
         {
             var lines = File.ReadLines(yamlPath);
             var sb = new StringBuilder();
             string header = null;
+
             foreach (var line in lines)
             {
                 if (line.StartsWith(ObjectHeaderPrefix))
@@ -58,24 +52,35 @@ namespace MergeYamlTree
                         yield return (header, ParseText(sb.ToString()));
                         sb.Clear();
                     }
-
                     header = line;
                     continue;
                 }
-
                 if (header != null) sb.AppendLine(line);
             }
 
-            if (header == null) yield break;
-            yield return (header, ParseText(sb.ToString()));
+            if (header != null)
+                yield return (header, ParseText(sb.ToString()));
         }
 
-        private static YamlDocument[] ParseText(string text)
+        private static Dictionary<string, string>[] ParseText(string text)
         {
-            var stream = new YamlStream();
-            using var sr = new StringReader(text);
-            stream.Load(sr);
-            return stream.Documents.ToArray();
+            var docs = new List<Dictionary<string, string>>();
+            var currentDoc = new Dictionary<string, string>();
+            foreach (var line in text.Split('\n'))
+            {
+                var trimmed = line.Trim();
+                if (string.IsNullOrEmpty(trimmed) || trimmed.StartsWith("#"))
+                {
+                    continue;
+                }
+                var parts = trimmed.Split(':', 2);
+                if (parts.Length == 2)
+                {
+                    currentDoc[parts[0].Trim()] = parts[1].Trim();
+                }
+            }
+            docs.Add(currentDoc);
+            return docs.ToArray();
         }
     }
 }

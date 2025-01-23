@@ -38,7 +38,6 @@ public static class CommandExecutor
 
     public static List<string> GetConflictFiles(string branch)
     {
-        const string filePathPrefix = "Assets/Scripts/MergeYAMLtree/";
         // コンフリクト中の可視化ファイルのパス
         List<string> conflictFiles = new List<string>();
 
@@ -55,8 +54,8 @@ public static class CommandExecutor
             if (line.StartsWith("UU"))
             {
                 string filePath = line.Substring(3).Trim();
-                File.Copy(filePath, filePath, true);
-                conflictFiles.Add($"{filePathPrefix}" + $"{filePath}");
+                File.Copy(filePath, $"{filePath}.unity", true);
+                conflictFiles.Add($"{filePath}.unity");
             }
         }
 

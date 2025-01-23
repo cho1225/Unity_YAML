@@ -60,7 +60,7 @@ namespace MergeYamlTree
             }
         }
 
-        private static MergeYamlTreeElement BuildObjectHeaderElements(string objectHeader, YamlDocument[] documents)
+        private static MergeYamlTreeElement BuildObjectHeaderElements(string objectHeader)
         {
             var classId = MergeUnityYamlParser.GetClassIdByObjectHeader(objectHeader);
             var icon = GetMiniTypeThumbnailFromClassID(classId);
@@ -68,23 +68,14 @@ namespace MergeYamlTree
             {
                 Id = _currentId++,
                 Name = objectHeader,
-                // FileId = UnityAssetYamlParser.GetFileIdByObjectHeader(objectHeader),
                 ClassId = classId,
                 ClassName = GetTypeNameByPersistentTypeID(classId),
                 Icon = icon,
             };
 
-            foreach (var document in documents)
-            {
-                objectHeaderElement.Children.AddRange(YamlNodeToTreeElement(
-                    objectHeaderElement, document.RootNode));
-            }
-
-            // classId:1001(PrefabInstance)の時はm_SourcePrefab.guidからAssetPreview.GetAssetPreviewFromGUID()を実行する
             if (classId == (int)ClassId.PrefabInstance)
             {
-                var guid = objectHeaderElement
-                    .Children?.FirstOrDefault(x => x.Name == "PrefabInstance")
+                var guid = objectHeaderElement.Children?.FirstOrDefault(x => x.Name == "PrefabInstance")
                     ?.Children?.FirstOrDefault(x => x.Name == "m_SourcePrefab")
                     ?.Children?.FirstOrDefault(x => x.Name == "guid")?.Value;
                 objectHeaderElement.Icon = GetAssetPreviewFromGUID(guid) ?? icon;
@@ -108,19 +99,17 @@ namespace MergeYamlTree
                 AssetPath = path,
             };
             var objectRoots = new List<MergeYamlTreeElement>();
-            foreach (var (objectHeader, documents) in MergeUnityYamlParser.Parse(path))
-            {
-                // UnityYaml
-                if (objectHeader != null)
-                {
-                    objectRoots.Add(BuildObjectHeaderElements(objectHeader, documents));
-                    continue;
-                }
 
-                // 普通のYaml
-                foreach (var document in documents)
+            foreach (var (objectHeader, nodes) in MergeUnityYamlParser.Parse(path))
+            {
+                if (!string.IsNullOrEmpty(objectHeader))
                 {
-                    objectRoots.AddRange(YamlNodeToTreeElement(root, document.RootNode));
+                    var headerElement = BuildObjectHeaderElements(objectHeader);
+                    var convertedNodes = nodes
+                        .SelectMany(dict => dict.Select(kv => (kv.Key, kv.Value))) // Dictionary を (string, string) のリストに変換
+                        .ToList();
+                    headerElement.Children.AddRange(ConvertToTreeElements(headerElement, convertedNodes));
+                    objectRoots.Add(headerElement);
                 }
             }
 
@@ -159,58 +148,26 @@ namespace MergeYamlTree
             return GetIcon(AssetDatabase.GetMainAssetTypeAtPath(assetPath));
         }
 
-        private static IEnumerable<MergeYamlTreeElement> YamlNodeToTreeElement(MergeYamlTreeElement parentElement, YamlNode node)
+        private static IEnumerable<MergeYamlTreeElement> ConvertToTreeElements(MergeYamlTreeElement parentElement, List<(string Key, string Value)> nodes)
         {
-            if (node is YamlScalarNode scalarNode)
+            foreach (var (key, value) in nodes)
             {
-                yield return new MergeYamlTreeElement
+                var element = new MergeYamlTreeElement
                 {
                     Id = _currentId++,
-                    Name = scalarNode.Value,
+                    Name = key,
+                    Value = value,
                 };
-                yield break;
-            }
 
-            if (node is YamlSequenceNode sequenceNode)
-            {
-                foreach (var sequenceNodeChild in sequenceNode.Children)
+                if (key == "guid")
                 {
-                    foreach (var seq in YamlNodeToTreeElement(parentElement, sequenceNodeChild))
-                    {
-                        yield return seq;
-                    }
+                    parentElement.Icon = GetAssetPreviewFromGUID(value);
+                    var path = AssetDatabase.GUIDToAssetPath(value);
+                    parentElement.AssetPath = path;
+                    element.AssetPath = path;
                 }
 
-                yield break;
-            }
-
-            if (node is YamlMappingNode mappingNode)
-            {
-                foreach (var n in mappingNode.Children)
-                {
-                    var key = (YamlScalarNode)n.Key;
-                    var value = n.Value;
-                    var parent = YamlNodeToTreeElement(parentElement, key).First();
-                    if (value is YamlScalarNode c)
-                    {
-                        parent.Value = c.Value;
-                    }
-                    else
-                    {
-                        var child = YamlNodeToTreeElement(parent, value);
-                        parent.Children = child.ToList();
-                    }
-
-                    if (key.Value == "guid" && value is YamlScalarNode valueNode)
-                    {
-                        parentElement.Icon = GetAssetPreviewFromGUID(valueNode.Value);
-                        var path = AssetDatabase.GUIDToAssetPath(valueNode.Value);
-                        parentElement.AssetPath = path;
-                        parent.AssetPath = path;
-                    }
-
-                    yield return parent;
-                }
+                yield return element;
             }
         }
 
