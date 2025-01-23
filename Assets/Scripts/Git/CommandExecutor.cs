@@ -45,7 +45,7 @@ public static class CommandExecutor
         var mergeResult = Run($"merge --no-commit --no-ff origin/{branch}");
 
         string output = Run("status --porcelain").output;
-        Debug.Log(output);
+        Debug.Log(mergeResult);
         string[] lines = output.Split(new[] { '\n', '\r' }, System.StringSplitOptions.RemoveEmptyEntries);
 
         foreach (var line in lines)
