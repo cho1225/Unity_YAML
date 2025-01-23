@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using MergeYamlTree;
@@ -90,7 +91,8 @@ public class GitWindow : EditorWindow
             else
             {
                 var windowOpener = new MergeYamlTreeViewOpener();
-                windowOpener.OpenYamlTreeView(CommandExecutor.GetConflictFiles(branches[mergeTargetIndex]));
+                List<string> conflictFiles = CommandExecutor.GetConflictFiles(branches[mergeTargetIndex]);
+                windowOpener.OpenYamlTreeView(conflictFiles);
             }
         }
     }
