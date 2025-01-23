@@ -11,6 +11,7 @@ namespace MergeYamlTree
         public void OpenYamlTreeView(List<string> conflictFiles)
         {
             window = EditorWindow.GetWindow<MergeYamlTreeViewWindow>(nameof(MergeYamlTreeViewWindow));
+            if (conflictFiles == null) Debug.Log("yabai");
             foreach (string conflictFile in conflictFiles) Debug.Log(conflictFile);
             window.ConflictFiles = conflictFiles;
         }
