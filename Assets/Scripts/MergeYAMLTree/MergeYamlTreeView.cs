@@ -20,6 +20,8 @@ namespace MergeYamlTree
 
         public MergeYamlTreeView(TreeViewState treeViewState) : base(treeViewState)
         {
+            // 見やすくするため
+            this.rowHeight = EditorGUIUtility.singleLineHeight + 2;
         }
 
         public void SetElements(MergeYamlTreeElement[] elements)
@@ -64,32 +66,67 @@ namespace MergeYamlTree
             item.DisplayNameOption = DisplayNameOption;
             item.ShowIcon = ShowObjectHeaderIcon;
 
+            bool isSelected = args.selected;
+
+            Color bgColor = isSelected ? new Color(0.24f, 0.49f, 0.91f, 0.5f) : new Color(0.22f, 0.22f, 0.22f, 1.0f);
+
             if (!string.IsNullOrEmpty(item.Source))
             {
                 if (item.Source == "HEAD")
                 {
                     GUI.color = Color.green;
+                    bgColor = isSelected ? new Color(0f, 0f, 0f, 0f) : new Color(0.22f, 0.22f, 0.22f, 1.0f);
                 }
-                else if (item.Source.StartsWith("REMOTE"))
-                {
+                else if (item.Source.StartsWith("REMOTE")) 
+                { 
                     GUI.color = Color.red;
+                    bgColor = isSelected ? new Color(0f, 0f, 0f, 0f) : new Color(0.22f, 0.22f, 0.22f, 1.0f);
                 }
-            }
-            else
-            {
-                GUI.color = Color.white;
+                else
+                {
+                    GUI.color = Color.white;
+                    bgColor = isSelected ? new Color(0.24f, 0.49f, 0.91f, 0.5f) : new Color(0.22f, 0.22f, 0.22f, 1.0f);
+                }
             }
 
+            EditorGUI.DrawRect(args.rowRect, bgColor);
             base.RowGUI(args);
-            GUI.color = Color.white;
         }
 
         protected override void DoubleClickedItem(int id)
         {
-            base.DoubleClickedItem(id);
-            var first = FindRows(new List<int> { id }).FirstOrDefault() as MergeYamlTreeViewItem;
-            if (first?.Data?.AssetPath == null) return;
-            AssetDatabase.OpenAsset(AssetDatabase.LoadMainAssetAtPath(first.Data.AssetPath));
+            var item = FindRows(new List<int> { id }).FirstOrDefault() as MergeYamlTreeViewItem;
+            if (item?.Data?.AssetPath != null)
+            {
+                AssetDatabase.OpenAsset(AssetDatabase.LoadMainAssetAtPath(item.Data.AssetPath));
+            }
+            else if (item != null && !string.IsNullOrEmpty(item.Source) && item.Source != "BASE")
+            {
+                BeginRename(item);
+            }
+        }
+
+        protected override bool CanRename(TreeViewItem item)
+        {
+            if (item is MergeYamlTreeViewItem yamlItem)
+            {
+                return !string.IsNullOrEmpty(yamlItem.Source) && yamlItem.Source != "BASE";
+            }
+            return false;
+        }
+
+        protected override void RenameEnded(RenameEndedArgs args)
+        {
+            if (!args.acceptedRename) return;
+
+            var item = FindItem(args.itemID, rootItem) as MergeYamlTreeViewItem;
+            if (item != null)
+            {
+                item.Data.Name = args.newName;
+                item.displayName = args.newName;
+                Reload();
+                Repaint();
+            }
         }
 
         protected override void SingleClickedItem(int id)
