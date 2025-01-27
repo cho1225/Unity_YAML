@@ -89,6 +89,19 @@ namespace MergeYamlTree
                 }
             }
 
+            var rect = args.rowRect;
+            var mousePos = Event.current.mousePosition;
+
+            if (rect.Contains(mousePos))
+            {
+                var description = GetDescriptionForElement(item.Data.Name);
+                if (!string.IsNullOrEmpty(description))
+                {
+                    var tooltipContent = new GUIContent(item.displayName, description);
+                    GUI.Label(rect, tooltipContent);
+                }
+            }
+
             EditorGUI.DrawRect(args.rowRect, bgColor);
             base.RowGUI(args);
         }
@@ -127,6 +140,24 @@ namespace MergeYamlTree
                 Reload();
                 Repaint();
             }
+        }
+
+        private string GetDescriptionForElement(string elementName)
+        {
+            string[] guids = AssetDatabase.FindAssets("t:YamlElementDescription"); // 型を指定して検索
+            foreach (string guid in guids)
+            {
+                string path = AssetDatabase.GUIDToAssetPath(guid);
+                var descs = AssetDatabase.LoadAssetAtPath<YamlElementDescription>(path);
+                foreach (var desc in descs.Descriptions)
+                {
+                    if (desc != null && desc.Name == elementName)
+                    {
+                        return desc.Description;
+                    }
+                }
+            }
+            return null;
         }
 
         protected override void SingleClickedItem(int id)
