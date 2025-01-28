@@ -44,6 +44,15 @@ namespace MergeYamlTree
             _searchField.downOrUpArrowKeyPressed += _treeView.SetFocusAndEnsureSelectedItem;
             ReloadTreeView();
             ExpandAllNodes();
+            SetInspectorView();
+        }
+
+        private static void SetInspectorView()
+        {
+            var obj = new GameObject("Inspector View");
+            var component = obj.AddComponent<InspectorView>();
+
+            Selection.activeGameObject = obj; // Inspectorに表示
         }
 
         /// <summary>
