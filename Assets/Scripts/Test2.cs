@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class Test : MonoBehaviour
+public class Test2 : MonoBehaviour
 {
     void Start()
     {
@@ -9,7 +9,7 @@ public class Test : MonoBehaviour
 
     private void CheckMerge()
     {
-        Debug.Log("aaaaaaaa");
+        Debug.Log("bbbbbbbb");
         return;
     }
 }
