@@ -44,15 +44,12 @@ namespace MergeYamlTree
             _searchField.downOrUpArrowKeyPressed += _treeView.SetFocusAndEnsureSelectedItem;
             ReloadTreeView();
             ExpandAllNodes();
-            SetInspectorView();
+            OpenQuestionView();
         }
 
-        private static void SetInspectorView()
+        private void OpenQuestionView()
         {
-            var obj = new GameObject("Inspector View");
-            var component = obj.AddComponent<InspectorView>();
-
-            Selection.activeGameObject = obj; // Inspectorに表示
+            GetWindow<QuestionViewWindow>(nameof(QuestionViewWindow));
         }
 
         /// <summary>
