@@ -53,6 +53,7 @@ public static class CommandExecutor
             if (line.StartsWith("UU"))
             {
                 string filePath = line.Substring(3).Trim();
+
                 File.Copy(filePath, $"{filePath}.txt", true);
                 conflictFiles.Add($"{filePath}.txt");
             }

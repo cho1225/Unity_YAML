@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor.IMGUI.Controls;
 using UnityEditor;
+
 namespace MergeYamlTree
 {
     internal class MergeYamlTreeViewWindow : EditorWindow
@@ -28,9 +29,6 @@ namespace MergeYamlTree
         public List<string> ConflictFiles { get; set; }
 
 
-        /// <summary>
-        /// メニューからツールウィンドウを開く
-        /// </summary>
         private static void Open() => GetWindow<MergeYamlTreeViewWindow>(nameof(MergeYamlTreeViewWindow));
 
         /// <summary>
