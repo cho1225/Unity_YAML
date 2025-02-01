@@ -119,6 +119,7 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+<<<<<<< HEAD
 --- !u!1 &143762544
 GameObject:
   m_ObjectHideFlags: 0
@@ -206,6 +207,9 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+=======
+>>>>>>> origin/A
+<<<<<<< HEAD
 --- !u!1 &349064063
 GameObject:
   m_ObjectHideFlags: 0
@@ -293,6 +297,9 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+=======
+>>>>>>> origin/A
+<<<<<<< HEAD
 --- !u!1 &376298128
 GameObject:
   m_ObjectHideFlags: 0
@@ -380,6 +387,9 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+=======
+>>>>>>> origin/A
+<<<<<<< HEAD
 --- !u!1 &769315186
 GameObject:
   m_ObjectHideFlags: 0
@@ -467,6 +477,8 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+=======
+>>>>>>> origin/A
 --- !u!1 &1177511342
 GameObject:
   m_ObjectHideFlags: 0
@@ -575,6 +587,7 @@ MonoBehaviour:
 >>>>>>> origin/A
   m_Name: 
   m_EditorClassIdentifier: 
+<<<<<<< HEAD
 --- !u!1 &1353493492
 GameObject:
   m_ObjectHideFlags: 0
@@ -662,6 +675,9 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+=======
+>>>>>>> origin/A
+<<<<<<< HEAD
 --- !u!1 &1427842819
 GameObject:
   m_ObjectHideFlags: 0
@@ -749,6 +765,8 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+=======
+>>>>>>> origin/A
 --- !u!1 &1843762114
 GameObject:
   m_ObjectHideFlags: 0
@@ -907,30 +925,8 @@ SceneRoots:
   - {fileID: 1681174770}
   - {fileID: 610576881}
 >>>>>>> origin/A
---- !u!29 &1
-OcclusionCullingSettings:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_OcclusionBakeSettings:
-    smallestOccluder: 5
-    smallestHole: 0.25
-    backfaceThreshold: 100
-  m_SceneGUID: 00000000000000000000000000000000
-  m_OcclusionCullingData: {fileID: 0}
---- !u!104 &2
-RenderSettings:
-  m_ObjectHideFlags: 0
-  serializedVersion: 10
-  m_Fog: 0
-  m_FogColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
-  m_FogMode: 3
-  m_FogDensity: 0.01
-  m_LinearFogStart: 0
-  m_LinearFogEnd: 300
-  m_AmbientSkyColor: {r: 0.212, g: 0.227, b: 0.259, a: 1}
-  m_AmbientEquatorColor: {r: 0.114, g: 0.125, b: 0.133, a: 1}
-  m_AmbientGroundColor: {r: 0.047, g: 0.043, b: 0.035, a: 1}
-  m_AmbientIntensity: 1
+<<<<<<< HEAD
+=======
 --- !u!1 &412936433
 GameObject:
   m_ObjectHideFlags: 0
@@ -1018,6 +1014,9 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+>>>>>>> origin/A
+<<<<<<< HEAD
+=======
 --- !u!1 &422973929
 GameObject:
   m_ObjectHideFlags: 0
@@ -1105,6 +1104,9 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+>>>>>>> origin/A
+<<<<<<< HEAD
+=======
 --- !u!1 &610576879
 GameObject:
   m_ObjectHideFlags: 0
@@ -1192,6 +1194,9 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+>>>>>>> origin/A
+<<<<<<< HEAD
+=======
 --- !u!1 &1211793790
 GameObject:
   m_ObjectHideFlags: 0
@@ -1279,6 +1284,9 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+>>>>>>> origin/A
+<<<<<<< HEAD
+=======
 --- !u!1 &1500411938
 GameObject:
   m_ObjectHideFlags: 0
@@ -1366,6 +1374,9 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+>>>>>>> origin/A
+<<<<<<< HEAD
+=======
 --- !u!1 &1681174768
 GameObject:
   m_ObjectHideFlags: 0
@@ -1453,3 +1464,4 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+>>>>>>> origin/A
