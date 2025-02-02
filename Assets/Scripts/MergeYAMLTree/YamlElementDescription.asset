@@ -15,3 +15,7 @@ MonoBehaviour:
   Descriptions:
   - Name: m_Color
     Description: "\u30AA\u30D6\u30B8\u30A7\u30AF\u30C8\u306E\u8272\u3092\u6307\u5B9A\u3059\u308B\u8A2D\u5B9A"
+  - Name: m_Script
+    Description: "\u30B9\u30AF\u30EA\u30D7\u30C8\u306E\u53C2\u7167\u3092\u793A\u3059\u8A2D\u5B9A"
+  - Name: m_Name
+    Description: "GameObject\u306E\u540D\u524D\u3092\u793A\u3059\u8A2D\u5B9A"
