@@ -1,15 +1,15 @@
-using MergeYamlTree;
-using System.Net.Http;
-using System.Text;
-using Unity.Plastic.Newtonsoft.Json;
 using UnityEditor;
 using UnityEngine;
+using System.Net.Http;
+using System.Text;
+using Newtonsoft.Json;
 
 public class QuestionViewWindow : EditorWindow
 {
     private string text = "";
     private string response = "ここに回答が表示されます";
-    private const string API_KEY = "your-api-key-here"; // OpenAI APIキーを設定
+    private const string API_KEY = ""; // OpenAI APIキーを設定
+    private Vector2 scrollPos;
 
     private static void Open() => GetWindow<QuestionViewWindow>(nameof(QuestionViewWindow));
 
@@ -17,9 +17,13 @@ public class QuestionViewWindow : EditorWindow
     {
         GUILayout.Label("ChatGPT 質問ウィンドウ", EditorStyles.boldLabel);
 
-        text = EditorGUILayout.TextField("質問:", text);
+        // スクロール可能なテキスト入力フィールド
+        GUILayout.Label("質問:", EditorStyles.boldLabel);
+        scrollPos = EditorGUILayout.BeginScrollView(scrollPos, GUILayout.Height(100));
+        text = EditorGUILayout.TextArea(text, GUILayout.ExpandHeight(true));
+        EditorGUILayout.EndScrollView();
 
-        if (GUILayout.Button("送信"))
+        if (GUILayout.Button("送信", GUILayout.Height(30)))
         {
             SendToChatGPT(text);
         }
